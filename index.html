@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual QSL Card Swap</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #0d1117;
+        color: #f0f6fc;
+    }
+
+    header {
+        background: #161b22;
+        padding: 20px;
+        text-align: center;
+        border-bottom: 2px solid #30363d;
+    }
+
+    h1 {
+        margin: 0;
+        color: #58a6ff;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .card-form {
+        background: #161b22;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 8px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: none;
+        background: #0d1117;
+        color: #f0f6fc;
+    }
+
+    button {
+        background: #238636;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #2ea043;
+    }
+
+    .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .qsl-card {
+        background: #161b22;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .qsl-card img {
+        max-width: 100%;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    footer {
+        text-align: center;
+        padding: 15px;
+        font-size: 14px;
+        color: #8b949e;
+        border-top: 1px solid #30363d;
+        margin-top: 30px;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>📡 Virtual Ham Radio QSL Card Swap</h1>
+    <p>Exchange digital QSL cards with operators worldwide</p>
+</header>
+
+<div class="container">
+
+    <div class="card-form">
+        <h2>Submit Your QSL Card</h2>
+        <form id="qslForm">
+            <label>Callsign</label>
+            <input type="text" id="callsign" required>
+
+            <label>Operator Name</label>
+            <input type="text" id="operator" required>
+
+            <label>Location</label>
+            <input type="text" id="location" required>
+
+            <label>Message</label>
+            <textarea id="message" rows="3"></textarea>
+
+            <label>Upload QSL Card Image</label>
+            <input type="file" id="imageUpload" accept="image/*" required>
+
+            <button type="submit">Upload Card</button>
+        </form>
+    </div>
+
+    <h2>QSL Gallery</h2>
+    <div class="gallery" id="gallery"></div>
+
+</div>
+
+<footer>
+    © 2026 Virtual QSL Exchange | 73!
+</footer>
+
+<script>
+const form = document.getElementById("qslForm");
+const gallery = document.getElementById("gallery");
+
+document.addEventListener("DOMContentLoaded", loadCards);
+
+form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const callsign = document.getElementById("callsign").value;
+    const operator = document.getElementById("operator").value;
+    const location = document.getElementById("location").value;
+    const message = document.getElementById("message").value;
+    const file = document.getElementById("imageUpload").files[0];
+
+    const reader = new FileReader();
+    reader.onload = function() {
+        const card = {
+            callsign,
+            operator,
+            location,
+            message,
+            image: reader.result
+        };
+
+        saveCard(card);
+        displayCard(card);
+        form.reset();
+    };
+
+    reader.readAsDataURL(file);
+});
+
+function saveCard(card) {
+    let cards = JSON.parse(localStorage.getItem("qslCards")) || [];
+    cards.push(card);
+    localStorage.setItem("qslCards", JSON.stringify(cards));
+}
+
+function loadCards() {
+    let cards = JSON.parse(localStorage.getItem("qslCards")) || [];
+    cards.forEach(displayCard);
+}
+
+function displayCard(card) {
+    const div = document.createElement("div");
+    div.className = "qsl-card";
+
+    div.innerHTML = `
+        <img src="${card.image}" alt="QSL Card">
+        <h3>${card.callsign}</h3>
+        <p><strong>Operator:</strong> ${card.operator}</p>
+        <p><strong>Location:</strong> ${card.location}</p>
+        <p>${card.message}</p>
+    `;
+
+    gallery.prepend(div);
+}
+</script>
+
+</body>
+</html>
